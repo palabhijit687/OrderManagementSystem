@@ -1,0 +1,102 @@
+{
+	"info": {
+		"_postman_id": "7fb20825-a5d8-441b-9434-9cab0364aeb8",
+		"name": "OrderManagement",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "OrderManagementSystem",
+			"item": [
+				{
+					"name": "saveOrder",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\":3,\r\n    \"totalAmount\": 125,\r\n    \"orderItems\": [\r\n        {\r\n            \"itemId\": 2,\r\n            \"quantity\": 3,\r\n            \"amount\": 100\r\n        },\r\n        {\r\n            \"itemId\": 3,\r\n            \"quantity\": 3,\r\n            \"amount\": 25\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/saveOrder",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"saveOrder"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/users",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/items",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "customDateRange",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/custom-date-range/1/2023-05-18 12:00:00/2023-05-20 12:00:00",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"custom-date-range",
+								"1",
+								"2023-05-18 12:00:00",
+								"2023-05-20 12:00:00"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
