@@ -45,7 +45,7 @@
         <label for="totalAmount">Total Amount:</label>
         <span id="totalAmount"></span>
         <br><br>
-        <input type="submit" value="Order">
+        <input type="submit" value="Save Order">
     </form>
 
     <script>
