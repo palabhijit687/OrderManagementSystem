@@ -70,9 +70,11 @@
                     contentType: "application/json",
                     success: function (response) {
                         console.log("Order saved successfully");
+                        // Handle success response if needed
                     },
                     error: function (xhr, status, error) {
                         console.error("Failed to save order: " + error);
+                        // Handle error response if needed
                     }
                 });
             });
