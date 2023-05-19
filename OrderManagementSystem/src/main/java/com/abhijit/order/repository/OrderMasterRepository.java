@@ -11,9 +11,6 @@ import com.abhijit.order.entities.OrderMaster;
 
 public interface OrderMasterRepository extends JpaRepository<OrderMaster, Long> {
 	@Query("SELECT o FROM OrderMaster o WHERE o.user.id = :userId AND o.orderDate BETWEEN :fromDate AND :toDate")
-	List<OrderMaster> findByUserIdAndOrderDateBetween(
-			@Param("userId") int userId,
-			@Param("fromDate") LocalDateTime fromDate,
-			@Param("toDate") LocalDateTime toDate);
+	List<OrderMaster> findByUserIdAndOrderDateBetween(Long userId, LocalDateTime fromDate, LocalDateTime toDate);
 
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.abhijit.order.entities.CustomDateRangeRequest;
 import com.abhijit.order.entities.ItemMaster;
 import com.abhijit.order.entities.OrderMaster;
 import com.abhijit.order.entities.OrderMasterDetails;
@@ -81,13 +82,13 @@ public class OrderController {
     }
   }
 	
-	@GetMapping("/custom-date-range/{userId}/{fromDate}/{toDate}")
-	public ResponseEntity<?> getOrderListForCustomDateRange(
-			@PathVariable("userId") int userId,
-			@PathVariable("fromDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String fromDate,
-			@PathVariable("toDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String toDate) {
+	@GetMapping("/custom-date-range")
+	public ResponseEntity<?> getOrderListForCustomDateRange(@RequestBody CustomDateRangeRequest request) {
 		try {
+			Long userId = Long.parseLong(request.getUserId());
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			String fromDate = request.getFromDate();
+			String toDate = request.getToDate();
 			LocalDateTime from = LocalDateTime.parse(fromDate, formatter);
 			LocalDateTime to = LocalDateTime.parse(toDate, formatter);
 			System.out.println("Triggered");
