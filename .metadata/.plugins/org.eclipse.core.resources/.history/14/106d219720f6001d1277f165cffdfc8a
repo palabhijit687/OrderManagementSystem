@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Save Order</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Save Order</h1>
+    <form id="orderForm">
+        <label for="userId">User ID:</label>
+        <select id="userId" name="userId"></select>
+
+        <label for="itemId">Item ID:</label>
+        <select id="itemId" name="itemId"></select>
+
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity">
+
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount">
+
+        <button type="button" id="addItemBtn">Add Item</button>
+        <button type="button" id="saveOrderBtn">Save Order</button>
+    </form>
+
+    <table id="orderTable">
+        <thead>
+            <tr>
+                <th>Item ID</th>
+                <th>Quantity</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody id="orderItemsBody">
+        </tbody>
+    </table>
+
+    <label for="totalAmount">Total Amount:</label>
+    <span id="totalAmount"></span>
+
+    <script>
+        // Fetch user IDs and populate the dropdown
+        $.ajax({
+            url: "/api/users",
+            method: "GET",
+            success: function (response) {
+                var userIdDropdown = $("#userId");
+                response.forEach(function (user) {
+                    userIdDropdown.append('<option value="' + user.id + '">' + user.name + '</option>');
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+
+        // Fetch item IDs and populate the dropdown
+        $.ajax({
+            url: "/api/items",
+            method: "GET",
+            success: function (response) {
+                var itemIdDropdown = $("#itemId");
+                response.forEach(function (item) {
+                    itemIdDropdown.append('<option value="' + item.itemId + '">' + item.itemName + '</option>');
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+
+        // Add item to the order
+        $("#addItemBtn").click(function () {
+            var itemId = $("#itemId").val();
+            var quantity = $("#quantity").val();
+            var amount = $("#amount").val();
+
+            // Perform validation if needed
+
+            // Append the item details to the order table
+            var orderItemsBody = $("#orderItemsBody");
+            orderItemsBody.append('<tr><td>' + itemId + '</td><td>' + quantity + '</td><td>' + amount + '</td></tr>');
+
+            // Calculate and display the total amount
+            var totalAmount = calculateTotalAmount();
+            $("#totalAmount").text("Total Amount: " + totalAmount);
+        });
+
+        // Save the order
+        $("#saveOrderBtn").click(function () {
+            var userId = $("#userId").val();
+
+            // Get the order items from the table
+            var orderItems = [];
+            $("#orderTable tbody tr").each(function () {
+                var itemId = $(this).find("td:first-child").text();
+                var quantity = $(this).find("td:nth-child(2)").text();
+                var amount = $(this).find("td:nth-child(3)").text();
+
+                orderItems.push({
+                    itemId: itemId,
+                    quantity: quantity,
+                    amount: amount
+                });
+            });
+
+            // Create the request payload
+            var orderRequest = {
+                userId: userId,
+                orderItems: orderItems
+            };
+
+            // Perform the API call to save the order
+            $.ajax({
+                url: "/api/saveOrder",
+                method: "POST",
+                data: JSON.stringify(orderRequest),
+                contentType: "application/json",
+                success: function (response) {
+                    console.log("Order saved successfully");
+                    // Handle success response if needed
+                },
+                error: function (xhr, status, error) {
+                    console.error("Failed to save order: " + error);
+                    // Handle error response if needed
+                }
+            });
+        });
+
+        // Calculate the total amount
+        function calculateTotalAmount() {
+            var totalAmount = 0;
+            $("#orderTable tbody tr").each(function () {
+                var amount = parseInt($(this).find("td:nth-child(3)").text());
+                totalAmount += amount;
+            });
+            return totalAmount;
+        }
+    </script>
+</body>
+</html>
