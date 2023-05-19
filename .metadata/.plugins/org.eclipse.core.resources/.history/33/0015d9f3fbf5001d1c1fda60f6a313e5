@@ -1,0 +1,50 @@
+package com.abhijit.order.controller;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.abhijit.order.entities.OrderRequest;
+import com.abhijit.order.entities.UserMaster;
+import com.abhijit.order.repository.ItemRepository;
+import com.abhijit.order.repository.OrderMasterDetailsRepository;
+import com.abhijit.order.repository.OrderMasterRepository;
+import com.abhijit.order.repository.UserRepository;
+
+@RestController
+@RequestMapping("/api")
+public class OrderController {
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private ItemRepository itemRepository;
+	
+	@Autowired
+	private OrderMasterRepository orderMasterRepository;
+	
+	@Autowired
+	private OrderMasterDetailsRepository orderMasterDetailsRepository;
+	
+	@PostMapping("/saveOrder")
+	public ResponseEntity<String> saveOrder(@RequestBody OrderRequest orderRequest) {
+    try {
+    	Integer userId = Integer.parseInt(orderRequest.getUserId());
+    	Optional<UserMaster> user = userRepository.findById(userId);
+    	if(user.isEmpty()) {
+    		throw new RuntimeException("User not found");
+    	}
+    } catch (NumberFormatException e) {
+    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user id format");
+    } catch (Exception e) {
+    	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save order");
+    }
+  }
+}

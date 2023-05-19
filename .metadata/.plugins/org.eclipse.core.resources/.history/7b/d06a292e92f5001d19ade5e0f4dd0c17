@@ -1,0 +1,5 @@
+package com.abhijit.order.entities;
+
+public class OrderMaster {
+
+}

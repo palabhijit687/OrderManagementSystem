@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Order Form</title>
+</head>
+<body>
+  <h1>Order Form</h1>
+
+  <form id="orderForm">
+    <div>
+      <label for="userIdSelect">User ID:</label>
+      <select id="userIdSelect" name="userId"></select>
+    </div>
+
+    <div>
+      <label for="orderDateInput">Order Date:</label>
+      <input type="text" id="orderDateInput" name="orderDate" readonly>
+    </div>
+
+    <div>
+      <label for="itemSelect">Item:</label>
+      <select id="itemSelect" name="itemId"></select>
+    </div>
+
+    <div>
+      <label for="quantityInput">Quantity:</label>
+      <input type="number" id="quantityInput" name="quantity" min="1" value="1">
+    </div>
+
+    <div>
+      <button type="button" onclick="addItem()">Add Item</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody id="orderItemsTableBody"></tbody>
+    </table>
+
+    <div>
+      <button type="submit">Submit Order</button>
+    </div>
+  </form>
+
+  <script>
+    // Fetch users data using AJAX
+    fetch('/api/users')
+      .then(response => response.json())
+      .then(data => {
+        const userIdSelect = document.getElementById('userIdSelect');
+        data.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.id;
+          option.textContent = user.name;
+          userIdSelect.appendChild(option);
+        });
+      })
+      .catch(error => {
+        console.error('Failed to fetch users:', error);
+      });
+
+    // Fetch items data using AJAX
+    fetch('/api/items')
+      .then(response => response.json())
+      .then(data => {
+        const itemSelect = document.getElementById('itemSelect');
+        data.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.item_id;
+          option.textContent = item.item_name;
+          itemSelect.appendChild(option);
+        });
+      })
+      .catch(error => {
+        console.error('Failed to fetch items:', error);
+      });
+
+    // Set current date
+    const orderDateInput = document.getElementById('orderDateInput');
+    const currentDate = new Date().toISOString().split('T')[0];
+    orderDateInput.value = currentDate;
+
+    // Function to add an item to the order
+    function addItem() {
+      const itemId = document.getElementById('itemSelect').value;
+      const quantity = document.getElementById('quantityInput').value;
+      const itemSelect = document.getElementById('itemSelect');
+      const itemName = itemSelect.options[itemSelect.selectedIndex].text;
+
+      const orderItemsTableBody = document.getElementById('orderItemsTableBody');
+      const row = orderItemsTableBody.insertRow();
+      const itemNameCell = row.insertCell();
+      const quantityCell = row.insertCell();
+
+      itemNameCell.textContent = itemName;
+      quantityCell.textContent = quantity;
+    }
+
+    // Submit order form using AJAX
+    const orderForm = document.getElementById('orderForm');
+   

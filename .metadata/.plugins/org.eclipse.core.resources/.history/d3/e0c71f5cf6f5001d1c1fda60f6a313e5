@@ -1,0 +1,44 @@
+package com.abhijit.order.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.abhijit.order.entities.OrderMaster;
+import com.abhijit.order.entities.OrderRequest;
+import com.abhijit.order.repository.OrderMasterDetailsRepository;
+import com.abhijit.order.repository.OrderMasterRepository;
+
+@Service
+public class OrderServiceImpl implements OrderService {
+
+  @Autowired
+  private OrderMasterRepository orderMasterRepository;
+
+  @Autowired
+  private OrderMasterDetailsRepository orderMasterDetailsRepository;
+
+  @Override
+  public void saveOrder(OrderRequest orderRequest) {
+    // Create order master
+    OrderMaster orderMaster = new OrderMaster();
+    orderMaster.setUser(orderRequest.getUserId()));
+    orderMaster.setOrderDate(LocalDateTime.now()); // Use the current date and time
+    orderMaster.setTotalAmount(orderRequest.getTotalAmount());
+
+    // Save order master
+    orderMaster = orderMasterRepository.save(orderMaster);
+
+    // Create order details for each item
+    for (OrderItemRequest itemRequest : orderRequest.getOrderItems()) {
+      OrderMasterDetails orderDetails = new OrderMasterDetails();
+      orderDetails.setOrderId(orderMaster.getOrderId());
+      orderDetails.setItemId(itemRequest.getItemId());
+      orderDetails.setQuantity(itemRequest.getQuantity());
+      orderDetails.setAmount(itemRequest.getAmount());
+
+      // Save order details
+      orderMasterDetailsRepository.save(orderDetails);
+    }
+  }
+}
+

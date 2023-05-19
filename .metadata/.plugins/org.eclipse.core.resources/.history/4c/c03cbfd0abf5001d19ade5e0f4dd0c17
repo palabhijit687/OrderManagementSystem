@@ -1,0 +1,11 @@
+package com.abhijit.order.controller;
+
+import org.springframework.stereotype.Controller;
+
+@Controller
+public class IndexController {
+	@GetMapping("/")
+	public void index() {
+		return "index.html";
+	}
+}

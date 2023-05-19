@@ -1,0 +1,9 @@
+package com.abhijit.order.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.abhijit.order.entities.OrderMasterDetails;
+
+public interface OrderMasterDetailsRepository extends JpaRepository<OrderMasterDetails, Long> {
+}
+

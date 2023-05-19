@@ -1,0 +1,128 @@
+package com.abhijit.order.controller;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.abhijit.order.entities.ItemMaster;
+import com.abhijit.order.entities.OrderMaster;
+import com.abhijit.order.entities.OrderMasterDetails;
+import com.abhijit.order.entities.OrderRequest;
+import com.abhijit.order.entities.OrderRequest.OrderItemRequest;
+import com.abhijit.order.entities.UserMaster;
+import com.abhijit.order.repository.ItemRepository;
+import com.abhijit.order.repository.OrderMasterDetailsRepository;
+import com.abhijit.order.repository.OrderMasterRepository;
+import com.abhijit.order.repository.UserRepository;
+
+@RestController
+@RequestMapping("/api")
+public class OrderController {
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private ItemRepository itemRepository;
+	
+	@Autowired
+	private OrderMasterRepository orderMasterRepository;
+	
+	@Autowired
+	private OrderMasterDetailsRepository orderMasterDetailsRepository;
+	
+	@PostMapping("/saveOrder")
+	public ResponseEntity<String> saveOrder(@RequestBody OrderRequest orderRequest) {
+    try {
+    	Integer userId = Integer.parseInt(orderRequest.getUserId());
+    	UserMaster user = userRepository.findElementById(userId);
+    	OrderMaster orderMaster = new OrderMaster();
+    	orderMaster.setUser(user);
+    	orderMaster.setOrderDate(LocalDateTime.now());
+    	orderMaster.setTotalAmount(orderRequest.getTotalAmount());
+    	System.out.println(orderMaster.getUser().getName());
+    	System.out.println(orderMaster.getOrderDate());
+    	System.out.println(orderMaster.getTotalAmount());
+    	
+    	orderMasterRepository.save(orderMaster);
+    	
+    	for(OrderItemRequest item:orderRequest.getOrderItems()) {
+    		Long itemId = item.getItemId();
+    		ItemMaster itemMaster = itemRepository.findByItemId(itemId);
+    		OrderMasterDetails orderMasterDetails = new OrderMasterDetails();
+    		orderMasterDetails.setOrder(orderMaster);
+    		orderMasterDetails.setItem(itemMaster);
+    		orderMasterDetails.setQuantity(item.getQuantity());
+    		orderMasterDetails.setAmount(item.getAmount());
+    		
+    		orderMasterDetailsRepository.save(orderMasterDetails);
+    	}
+    	return ResponseEntity.ok("order saved successfully!");
+    	
+    } catch (NumberFormatException e) {
+    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user id format");
+    } catch (Exception e) {
+    	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save order");
+    }
+  }
+	
+	@GetMapping("/custom-date-range/{userId}/{fromDate}/{toDate}")
+	public ResponseEntity<?> getOrderListForCustomDateRange(
+			@PathVariable("userId") int userId,
+			@PathVariable("fromDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String fromDate,
+			@PathVariable("toDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String toDate) {
+		try {
+			LocalDate from = LocalDate.parse(fromDate);
+			LocalDate to = LocalDate.parse(toDate);
+			System.out.println(from);
+			System.out.println(to);
+			List<OrderMaster> orderList = orderMasterRepository.findByUserIdAndOrderDateBetween(userId, from, to);
+			if(orderList.isEmpty()) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No orders found for the specified date range.");
+			}
+			
+			BigDecimal totalOrderedAmount = BigDecimal.ZERO;
+			int totalOrderedQuantity = 0;
+			List<Map<String, Object>> items = new ArrayList<>();
+			for(OrderMaster order:orderList) {
+				List<OrderMasterDetails> orderDetailsList = orderMasterDetailsRepository.findByOrder(order);
+				for(OrderMasterDetails orderDetail:orderDetailsList) {
+					totalOrderedAmount = totalOrderedAmount.add(orderDetail.getAmount());
+					totalOrderedQuantity += orderDetail.getQuantity();
+					
+					Map<String, Object> itemData = new HashMap<>();
+					itemData.put("item_id", orderDetail.getItem().getItemId());
+					itemData.put("item_name",orderDetail.getItem().getItemName());
+					itemData.put("ordered_quantity", orderDetail.getQuantity());
+					items.add(itemData);
+					
+				}
+			}
+			Map<String, Object> responseData = new HashMap<>();
+			responseData.put("date", "");
+			responseData.put("totalOrderedAmount", totalOrderedAmount);
+			responseData.put("total_ordered_quantity", totalOrderedQuantity);
+			responseData.put("items", items);
+			
+			return ResponseEntity.ok(responseData);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to get orders");
+		}
+		
+	}
+}
