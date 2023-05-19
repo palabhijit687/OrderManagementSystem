@@ -8,20 +8,10 @@
     <h1>Save Order</h1>
     <form id="orderForm">
         <label for="userId">User ID:</label>
-        <select id="userId" name="userId">
-            <!-- Populate the user IDs from API response or other data source -->
-            <option value="1">User 1</option>
-            <option value="2">User 2</option>
-            <option value="3">User 3</option>
-        </select>
+        <select id="userId" name="userId"></select>
         <br><br>
         <label for="itemId">Item ID:</label>
-        <select id="itemId" name="itemId">
-            <!-- Populate the item IDs from API response or other data source -->
-            <option value="1">Item 1</option>
-            <option value="2">Item 2</option>
-            <option value="3">Item 3</option>
-        </select>
+        <select id="itemId" name="itemId"></select>
         <br><br>
         <label for="quantity">Quantity:</label>
         <input type="number" id="quantity" name="quantity">
@@ -76,6 +66,37 @@
                     }
                 });
             });
+            
+         // Fetch user IDs and populate the dropdown
+            $.ajax({
+                url: "/api/users",
+                method: "GET",
+                success: function (response) {
+                    var userIdDropdown = $("#userId");
+                    response.forEach(function (user) {
+                        userIdDropdown.append('<option value="' + user.id + '">' + user.name + '</option>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+
+            // Fetch item IDs and populate the dropdown
+            $.ajax({
+                url: "/api/items",
+                method: "GET",
+                success: function (response) {
+                    var itemIdDropdown = $("#itemId");
+                    response.forEach(function (item) {
+                        itemIdDropdown.append('<option value="' + item.itemId + '">' + item.itemName + '</option>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+
 
             $("#addItemBtn").click(function () {
                 var itemId = $("#itemId").val();
